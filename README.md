@@ -70,7 +70,7 @@ onestà:
 
 **Non** incluso nel repository:
 
-- Le immagini del dataset → *(dataset pubblico in arrivo — link da aggiungere)*
+- Le immagini del dataset → *(dataset non distribuito pubblicamente)*
 - Il modello allenato (`.pkl`) → sarà pubblicato con la demo su Hugging Face.
 
 ---
