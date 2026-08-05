@@ -17,11 +17,19 @@
 
 ## Tabella
 
+DATASET V1 - 196 immagini
+
 | # | Data | Architettura | Epoche | Image size | Augmentation | Seed | valid_pct | error_rate | train_loss | valid_loss | Nota / conclusione (perché questa prova, cosa concludo) |
 |---|------|--------------|--------|------------|--------------|------|-----------|------------|------------|------------|----------------------------------------------------------|
-| 1 |03/08 |   resnet34   |   3    |      224   |aug_transforms|  42  |    0.2    |  0.384615  |  2.028400  |  0.987559  |prima prova, per avere una visione generale, da migliorare|
-| 2 |  "   |      "       |   5    |       "    |      "       |   "  |     "     |  0.153846  |  1.392782  |  0.535854  |  error_rate scendeva notevolmente, 3 epoche erano poche  |
-| 3 |  "   |      "       |   8    |       "    |      "       |   "  |     "     |  0.076923  |  1.031007  |  0.246219  |valid_loss non si era ancora fermato, probabile margine di miglioramento|
+| 1 |03/08 |   resnet34   |   3    |     224    |aug_transforms|  42  |    0.2    |  0.384615  |  2.028400  |  0.987559  |prima prova, per avere una visione generale, da migliorare|
+| 2 |03/08 |   resnet34   |   5    |     224    |aug_transforms|  42  |    0.2    |  0.153846  |  1.392782  |  0.535854  |  error_rate scendeva notevolmente, 3 epoche erano poche  |
+| 3 |03/08 |   resnet34   |   8    |     224    |aug_transforms|  42  |    0.2    |  0.076923  |  1.031007  |  0.246219  |valid_loss non si era ancora fermato, probabile margine di miglioramento|
+
+DATASET V2 - 206 immagini
+
+| # | Data | Architettura | Epoche | Image size | Augmentation | Seed | valid_pct | error_rate | train_loss | valid_loss | Nota / conclusione (perché questa prova, cosa concludo) |
+|---|------|--------------|--------|------------|--------------|------|-----------|------------|------------|------------|----------------------------------------------------------|
+| 4 |06/08 |   resnet34   |   8    |     224    |aug_transforms|  42  |    0.2    |  0.121951  |  1.036307  |  0.381629  |il dataset è stato aggiornato in seguito a osservazioni derivanti dal 1' test|
 
 ---
 
@@ -67,6 +75,18 @@ C'è ancora un po' di confusione tra gli alberi, ma la diagonale è estremamente
 Le confusioni "alberi vs drago" si sono risolte con più allenamento, ma mejorana/olivo resiste. Segno che quella è una difficoltà più strutturale (forse foglie verdi simili?) che le epoche da sole non curano.
 Le cunfusioni mi sembrano ormai accettabili, si è saliti ad un'accuratezza del circa 92% e la valid_loss si è quasi fermata. Mi fermo qui.
 Il validation set è di circa 39 foto, quindi error_rate finale (0.076 circa 3 foto sbagliate) è indicativo ma rumoroso; miglioramenti sotto questa soglia non sarebbero statisticamente affidabili.
+
+### Prova #4
+- Confusioni:
+[('altro', 'alcalifa', np.int64(1)),
+ ('altro', 'drago', np.int64(1)),
+ ('altro', 'mejorana', np.int64(1)),
+ ('olivo', 'palmera_cola_pescado_ramificada', np.int64(1)),
+ ('palmera_canaria', 'drago', np.int64(1))]
+
+ - La mia lettura:
+ L'error rate si è alzato a circa 12%. Credo che questo non sia un vero problema in quanto le immagini "gemelle" avevano probabilmente alterato le prestazioni. Effettuerò un secondo test sul nuovo modello e trarrò le mie conclusioni su questa prova.
+ 8 epoche mi sembrano abbastanza, l'error rate si era fermato e la valid_loss si è quasi appiattita.
 
 ---
 
