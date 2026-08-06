@@ -187,8 +187,101 @@ Nel nuovo dataset sono cambiate le seguenti cose:
 
     Il nuovo dataset ha 206 foto.
 
----
+### [06/08/2026]
+Ho effettuato il secondo test, di seguito i risultati:
 
+Il test 2 è stato effettuato su 126 foto, di cui:
+
+    - 10 in spazi semi-aperti di cui una pianta e un oggetto:
+    me, un ipad, delle chiavi, una bottiglietta d'acqua, la vista dalla mia postazione (pc + porta), 2 foto di rocce, una pianta non nota. Sono stati tutti classificato come "NOT A MATCH".
+    Una terza foto delle rocce è stata rilevata come "mejorana" al 55%.
+
+    - 116 foto al parque garcia sanabria, di cui:
+        - 7 oggetti: 
+            - un dipinto, un bidone dell'immondizia, un piccione, un tombino, 2 scarpe. Sono stati tutti classificati come "NOT A MATCH".
+            - una terza foto di una scarpa è stata classificata come "drago".
+
+        - 109 piante:
+
+            altro (38)
+                - 21 corrette
+                - 3 alcalifa (colore)
+                - 1 palmera cola pescado (molto diversa)
+                - 3 mejorana (molto simili)
+                - 3 olivo (tronco simile + cielo) (in olivo non sono presenti foto del cielo)
+                - 7 palmera canaria (4 tronchi + cielo, 3 completamente diversi)
+
+            alcalifa (12)
+                - 8 corrette
+                - 3 not a match
+                - 1 mejorana
+
+                - (3 da altro)
+
+            palmera canaria (14)
+                - 9 corrette
+                - 4 not a match (foglie morte); (solo foglie); (foto classica che ha riconosciuto quasi sempre); (tronco parte bassa)
+                - 1 drago
+
+                - (7 da altro)
+
+            drago (10)
+                - 6 corrette (foto full)
+                - 3 not a match (foto da sotto verso solo rami e foglie)
+                - 1 alcalifa (tronco) ????
+
+                - (1 da oggetti)
+                
+            mejorana (7)
+                - 6 corrette
+                - 1 not a match, troppo lontano
+
+                - (1 da rocce)
+
+            olivo (8)
+                - 4 corrette (foto full)
+                - 4 not a match (2 per intero); (2 foglie)
+
+            cola pescado (22)
+                - 5 corrette (3 foglie); (2 foglie + tronco)
+                - 1 palmera canaria (foto full, era presente dietro)
+                - 16 not a match (6 solo foglie) ; (1 solo tronco); (1 solo frutti); (3 foglie + tronco); (5 foto full)
+                 
+Analizzando i dati:
+
+    - Il "drago" non fa più da attrattore per gli oggetti, questi vanno in altro quasi sempre. La diagnosi del cielo era probabilmente giusta! Verificherò con più sicurezza in seguito, sostituiendo al modello v1 solamente la categoria drago del v2.
+    - Il "drago" ora viene riconosciuto se vengono fatte foto per intero.
+    - L' "olivo" ora viene riconosciuto se vengono fatte foto per intero.
+    - La "palmera canaria" viene riconosciuta con più facilità.
+
+    - La "mejorana" viene scambiata spesso con specie verde e piccola molto simile. Lo accetto.
+    - L' "alcalifa" viene spesso confusa con piante della sua stessa colorazione, inoltre non viene riconosciuta se ci sono piante di colorazione differente nell'inquadratura, questo alimenta ancora di più la mia idea. Lo accetto.
+    - Tronchi generici vengono mandati automaticamente in olivo o palmera canaria per l' abbondanza di foto di tronchi nelle loro cartelle e/o l'eliminazione di altri dalla categoria altro. Una prima diagnosi mi faceva pensare alla presenza del cielo in alcuni scatti dei tronchi, ma 3 su 7 delle foto di tronchi generici che il modello ha predetto come palmera canaria non hanno il cielo; inoltre 4 volte, la combo tronco + cielo ha rimandato a olivo, che non ha foto con cielo. Sono abbastanza sicuro che quest'ipotesi non sia giusta, ma devo decidere come agire (elimino un po' di tronchi dalle categorie olivo e palmera canaria, li implemento nuovamente in altro, o entrambi?).
+    - la palmera cola de pescado non viene riconosciuta per intero, i tronchi sono troppo sottili e vengono confusi con l'ambiente circostante, si sarà sicuramente creata una texture con lo sfondo che somiglia molto di più alla categoria altro essendo molto più varia.
+    I close up sulle foglie sembrano funzionare meglio. Ho deciso che per la versione online, questa pianta non sarà presente per non rendere l'esperienza dell'utente inutilmente difficile e noiosa.
+    
+### [06/08/2026]
+Ho deciso che nella versione utilizzabile online la "palmera cola de pescado ramificada" non sarà presente. Questa scelta è dovuta alla volontà di non complicare l'esperienza dell'utente nel gioco.
+Per tanto allenerò nuovamente il modello con 6 categorie al posto di 7, non cambierò nulla se non che la categoria della palmera cola de pescado ramificada non verrà presa in considerazione.
+Lo ritesterò soprattutto sui tronchi generici, se il problema dei tronchi scompare e non ne escono di nuovi, importanti, concluderò qui i miei miglioramenti.
+In caso contrario valuterò in base ai nuovi dati e al tempo rimasto se converrebbe modificare il dataset nuovamente il dataset oppure no.
+
+### [06/08/2026]
+Devo scattare delle foto che utilizzerò una volta andato via da Tenerife per effettuare test più accurati sulle mie intuizioni, soprattutto su quella del cielo nelle foto del drago.
+
+### [06/08/2026]
+Ho testato il modello v3, allenando il modello senza la categoria "palmera cola de pescado ramificada" mi sono accorto di due cose:
+    1. Le fotografie di tronchi generici finivano su NOT A MATCH e non più su olivo o su palmera canaria
+    2. La palmera canaria è stata riconosciuta ben 1 volta su 26 (andavano tutte in NOT A MATCH) scattando foto dello stesso genere e nelle stesse condizioni della v2.
+
+Ho deciso per questo motivo di smettere di migliorare ulteriormente, per ora, in quanto credo che il problema si stia allargando troppo. Magari ci indagherò in futuro.
+
+Per la versione online tornerò alla v2 con 7 categorie, inserirò un pulsante per dare la palmera cola de pescado per buona qualora non venga riconosciuta.
+La motivazione è sempre per rendere l'esperienza di gioco più divertente, evitando di renderla stressante.
+
+Ti ringrazio per l'attenzione
+
+---
 
 ## vocabolario:
 
