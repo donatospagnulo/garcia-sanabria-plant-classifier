@@ -31,6 +31,12 @@ DATASET V2 - 206 immagini
 |---|------|--------------|--------|------------|--------------|------|-----------|------------|------------|------------|----------------------------------------------------------|
 | 4 |06/08 |   resnet34   |   8    |     224    |aug_transforms|  42  |    0.2    |  0.121951  |  1.036307  |  0.381629  |il dataset è stato aggiornato in seguito a osservazioni derivanti dal 1' test|
 
+DATASET V3 - 174 immagini
+
+| # | Data | Architettura | Epoche | Image size | Augmentation | Seed | valid_pct | error_rate | train_loss | valid_loss | Nota / conclusione (perché questa prova, cosa concludo) |
+|---|------|--------------|--------|------------|--------------|------|-----------|------------|------------|------------|----------------------------------------------------------|
+| 5 |06/08 |   resnet34   |   8    |     224    |aug_transforms|  42  |    0.2    |  0.205882  |  0.930928  |  0.375073  |questo è il modello senza il palmera cola de pescado ramificada|
+
 ---
 
 ## Confusioni principali (most_confused) per ogni prova
@@ -87,6 +93,17 @@ Il validation set è di circa 39 foto, quindi error_rate finale (0.076 circa 3 f
  - La mia lettura:
  L'error rate si è alzato a circa 12%. Credo che questo non sia un vero problema in quanto le immagini "gemelle" avevano probabilmente alterato le prestazioni. Effettuerò un secondo test sul nuovo modello e trarrò le mie conclusioni su questa prova.
  8 epoche mi sembrano abbastanza, l'error rate si era fermato e la valid_loss si è quasi appiattita.
+
+ ### Prova #5
+- Confusioni:
+[('alcalifa', 'altro', np.int64(3)),
+ ('altro', 'alcalifa', np.int64(1)),
+ ('olivo', 'drago', np.int64(1)),
+ ('palmera_canaria', 'altro', np.int64(1)),
+ ('palmera_canaria', 'drago', np.int64(1))]
+
+ - La mia lettura:
+ L'error rate è passato a circa 80 e le confusioni sembrano maggiori. A questo punto quello che farò sarà semplicemente testare il modello sul campo e analizzare i dati raccolti.
 
 ---
 
