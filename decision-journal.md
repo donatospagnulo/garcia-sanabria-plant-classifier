@@ -1,3 +1,356 @@
+# Decision journal
+
+*English version below, [Italian original further down](#diario-delle-decisioni). Unfamiliar terms are defined in [`GLOSSARY.md`](GLOSSARY.md).*
+
+> **What this file is for.** Here I write down, in prose and in my own words, the underlying
+> choices of the project and *why* I made them. Unlike the training log (a table of numbers),
+> this one is discursive. Every entry I write here would become a paragraph of the methodology
+> chapter in a thesis.
+> Rule: I write a decision WHEN I take it, not after the fact.
+
+---
+
+## How an entry is written
+
+Every entry answers three questions:
+
+1. **What** I decided.
+2. **Why** — the reasoning, and the alternatives I rejected.
+3. (where relevant) **With what consequences** / what I expect to happen.
+
+I date each entry so I can reconstruct the chronology of my own thinking.
+
+---
+
+## Decisions
+
+### [03/08/2026] — Choice of architecture
+
+- **What:** resnet34.
+- **Why:** the dataset is small. Too large a model on too little data risks more overfitting.
+
+### [03/08/2026] — Number of categories, and the "altro" class
+
+- **What:** 7 categories (6 known plants + one "other" class).
+- **Why:** I chose quality over quantity. I started from 11 candidate labelled plants and cut
+  down to 6 for various reasons: plants too similar to each other, impossible shooting
+  conditions for some, and plants tangled up with others. The seventh class, `altro`, was added
+  to give the model exposure to plants that are similar but different. The photos in this
+  category were taken under the same conditions and in the same way as the known plants.
+
+### [03/08/2026] — How I verified the botanical labels
+
+- **What:** the species name plates are present in Parque García Sanabria, Santa Cruz de
+  Tenerife. Where in doubt, I cross-checked on iNaturalist to confirm the photographed plant
+  really was the right one.
+- **Why:** the park's own plates are a reliable anchor.
+
+### [03/08/2026] — Criterion for the number of epochs
+
+- **What:** 8 epochs.
+- **Why:** at 3 and 5 there was obvious room for improvement; at 8 accuracy reached roughly 92%
+  and valid_loss had almost completely flattened.
+
+### [03/08/2026] — Whether to use data augmentation
+
+- **What:** data augmentation was used.
+- **Why:** the number of photos per species wasn't high enough without it.
+
+### [03/08/2026]
+
+- **What:** I only have 23 photos of alcalifa after the selection, and I decided to start anyway.
+- **Why:** the goal is to experiment, not to reach perfect performance. I can top it up later.
+
+### [03/08/2026]
+
+- **What:** I decided to rename the photo files anyway, even though labelling is done by folder.
+- **Why:** general tidiness.
+
+### [03/08/2026]
+
+- **What:** I decided to add an "altro" folder with generic plants other than the 6 main ones.
+- **Why:** the model will learn to reject images of different plants more easily.
+
+### [03/08/2026]
+
+The dataset contains groups of similar shots of the same individual plant. The default
+train/validation split assigns them at random, so some near-duplicates can end up on opposite
+sides: this may have slightly inflated the measured accuracy. Future improvement: group by
+individual specimen and split by group.
+
+### [03/08/2026]
+
+I excluded photos with distinctive background elements (irrigation pipes, pools, signs) to
+avoid the model associating a species with a contextual element rather than with the features
+of the plant itself — the risk of visual "shortcuts".
+
+### [04/08/2026]
+
+The model detects objects (shoes, bottles, devices, …) as known species, almost always as
+`drago`. I assume I need to expand the `altro` section with images of objects as well as plants.
+
+### [05/08/2026]
+
+**What:** I ran tests at the park. Objects are no longer detected as known species but as
+`altro`, almost always. Time to write the tests down and analyse them properly.
+
+- I repeated the tests indoors: the model still predicts known species (above all `drago`) when
+  the objects are on the floor. When I placed the objects on a blanket with a floral pattern,
+  the model returned `altro`.
+- I repeated the test photographing objects on dark backgrounds: the model predicts known species.
+- I repeated the test photographing objects on light backgrounds: the model predicts known species.
+- One test remains: photographing objects outdoors but away from nature. My guess is the model
+  will still predict known species. My idea is that it isn't the indoor setting or the artificial
+  light that makes the model hallucinate, but the *absence of a natural context*.
+
+**Why:** the model seems to hallucinate only when it looks like we're in a non-natural or
+non-uniform environment. Possible reasons:
+
+1. The `altro` section of the dataset lacks objects on non-natural backgrounds.
+2. Checking the species it most often confuses things with (`drago`), I noticed that out of 28
+   items, roughly half have a much more uniform background — the sky. It's very likely that
+   this is what creates the confusion. The sky is also visible in some palmera canaria photos,
+   in far smaller amounts.
+
+### [05/08/2026]
+
+**What:** I tested the model on the various known and unknown plants. I collected the data;
+here is the analysis.
+
+The test covered 94 photos:
+
+**21 objects indoors:**
+
+- 3 on a floral blanket → 3 NOT A MATCH
+- 12 on a uniform or semi-uniform surface → 12 DRAGO and 1 PALMERA CANARIA → **important data point**
+- 5 on a non-uniform surface (needs a better test) → 3 NOT A MATCH and 2 DRAGO
+
+**73 at Parque García Sanabria:**
+
+- 4 of objects → 4 NOT A MATCH
+- 69 of plants:
+
+**ALTRO (38)**
+- NOT A MATCH — 31
+- MEJORANA — 3 (one very similar, one moderately, one very different at 95%)
+- ALCALIFA — 1 (very different, 56%)
+- DRAGO — 1 (similar leaves)
+- PALMERA COLA PESCADO — 1 (very similar colour)
+- OLIVO — 1
+
+**DRAGO (6)**
+- DRAGO — 3 (branches + a few leaves + very little sky, 98%); (trunk + branches + leaves, a little sky, 74%); (with sky, 65%)
+- NOT A MATCH — 2 (no sky); (branches + a few leaves + a bit of sky)
+- OLIVO — 1 (trunk)
+- *Incoming false positives:* from ALTRO (1); from PALMERA CANARIA (1, background); from uniform/semi-uniform surfaces (12); from non-uniform surfaces (2, to be redone properly)
+
+**ALCALIFA (3)**
+- ALCALIFA — 3
+- *Incoming:* from ALTRO (1)
+
+**PALMERA COLA PESCADO (10) — VERY BAD!!!**
+- PALMERA COLA PESCADO — 2 (leaves, 97%); (trunk + fruit, 61%)
+- NOT A MATCH — 5 (leaves); (leaves); (trunk + fruit); (trunk + leaves + fruit); (leaves + a bit of trunk)
+- PALMERA CANARIA — 2 (trunk); (trunk + fruit + leaves)
+- OLIVO — 1 (trunk + fruit)
+- *Incoming:* from ALTRO (1)
+
+**MEJORANA (2)**
+- MEJORANA — 2
+- *Incoming:* from ALTRO (3)
+
+**PALMERA CANARIA (6)**
+- PALMERA CANARIA — 2 (trunk + leaves, upper part); (upper part (trunk + leaves) + a bit of sky)
+- NOT A MATCH — 3 (trunk); (trunk); (trunk)
+- DRAGO — 1 (a lot of sky in the background)
+- *Incoming:* from ALTRO (0); from uniform/semi-uniform surfaces (1); from PALMERA COLA PESCADO (2, probably the trunk)
+
+**OLIVO (4)**
+- OLIVO — 1 (full shot)
+- NOT A MATCH — 3 (trunk); (leaves); (trunk + branches)
+- *Incoming:* from ALTRO (1); from PALMERA COLA PESCADO (1, trunk + fruit); from DRAGO (1, trunk)
+
+**CONCLUSIONS FROM TEST 1:**
+
+- Cross-referencing the object photos with the plant photos, it seems fairly clear that the
+  `drago` problem is the uniform background — that is, the sky. I need to reshoot those photos
+  differently.
+- The only photo I took of a whitish plant was detected as `palmera cola pescado`. I need to add
+  at least a couple of whitish-coloured plants to the `altro` class.
+- Mejorana needs more investigation given the 3 false positives from unknown plants; also, 2
+  samples is too few.
+- Alcalifa looks fine, but 3 samples is too few.
+- Palmera cola pescado has obvious problems. The main one is the trunk, but the leaves are never
+  recognised either. Needs investigation.
+- Palmera canaria: here too the problem is the trunk.
+- The olive tree seems to be recognised as a whole, but not in parts.
+- **Trunks are a general problem.**
+
+**IDEA:** narrow the use case to the full-plant shot. That way the model should work better.
+
+**What I need to do now:**
+
+1. Reshoot the drago against backgrounds that aren't sky.
+2. Add the cases that slip through to `altro`.
+3. Verify the "promising" classes with more samples.
+4. Design the product so that it guides the user.
+
+### [05/08/2026]
+
+Drago and olivo have very few trunk photos (plenty of branches and leaves). Those need adding too.
+
+### [05/08/2026]
+
+The `altro` class has too many trunks and too little colour variety.
+
+### [05/08/2026]
+
+I ran a second test and it emerged that alcalifa isn't recognised as often as it seemed. I took
+some more photos of it too.
+
+### [06/08/2026]
+
+The idea was to isolate at least the background variable, to confirm that the cause of the
+hallucination was the sky in the drago photos. But time is short, so I'm putting everything
+into the new dataset together. When I have time I'll isolate the problem and test it properly.
+
+### [06/08/2026]
+
+The following changed in the new dataset:
+
+- **Removed:**
+  - photos with a lot of sky, from drago and palmera canaria;
+  - some trunks from the `altro` category;
+  - some near-duplicate photos from the other species.
+- **Added:**
+  - drago photos without sky;
+  - full-plant photos for the species that needed them (drago, alcalifa, olivo, palmera cola pescado);
+  - semi-full photos for palmera canaria;
+  - more colourful plants in the `altro` section.
+
+The new dataset has 206 photos.
+
+### [06/08/2026]
+
+I ran the second test. Results below.
+
+Test 2 covered 126 photos:
+
+**10 in semi-open spaces, one plant and one object each:** me, an iPad, some keys, a small water
+bottle, the view from my desk (PC + door), 2 photos of rocks, an unknown plant. All were
+classified as NOT A MATCH. A third photo of the rocks was detected as `mejorana` at 55%.
+
+**116 at Parque García Sanabria:**
+
+**7 objects:** a painting, a bin, a pigeon, a manhole cover, 2 shoes — all classified as NOT A
+MATCH. A third photo of a shoe was classified as `drago`.
+
+**109 plants:**
+
+**altro (38)**
+- 21 correct
+- 3 alcalifa (colour)
+- 1 palmera cola pescado (very different)
+- 3 mejorana (very similar)
+- 3 olivo (similar trunk + sky) — note there are no sky photos in the olivo class
+- 7 palmera canaria (4 trunks + sky, 3 completely different)
+
+**alcalifa (12)**
+- 8 correct
+- 3 not a match
+- 1 mejorana
+- *(3 incoming from altro)*
+
+**palmera canaria (14)**
+- 9 correct
+- 4 not a match: (dead leaves); (leaves only); (the classic shot it almost always recognised); (lower part of the trunk)
+- 1 drago
+- *(7 incoming from altro)*
+
+**drago (10)**
+- 6 correct (full shots)
+- 3 not a match (shot from below, only branches and leaves)
+- 1 alcalifa (trunk) ????
+- *(1 incoming from objects)*
+
+**mejorana (7)**
+- 6 correct
+- 1 not a match, too far away
+- *(1 incoming from rocks)*
+
+**olivo (8)**
+- 4 correct (full shots)
+- 4 not a match: (2 full plant); (2 leaves)
+
+**cola pescado (22)**
+- 5 correct: (3 leaves); (2 leaves + trunk)
+- 1 palmera canaria (full shot, there was one behind it)
+- 16 not a match: (6 leaves only); (1 trunk only); (1 fruit only); (3 leaves + trunk); (5 full shots)
+
+**Analysing the data:**
+
+- `drago` no longer acts as an attractor for objects — those go to `altro` almost always. The
+  sky diagnosis was probably right! I'll verify it more rigorously later, by swapping only the
+  drago category of v2 into the v1 model.
+- `drago` is now recognised when full-plant photos are taken.
+- `olivo` is now recognised when full-plant photos are taken.
+- `palmera canaria` is recognised more easily.
+- `mejorana` is often mistaken for a very similar small green species. I accept that.
+- `alcalifa` is often confused with plants of its own colouring, and moreover isn't recognised
+  when plants of a different colour are in the frame. This reinforces my hypothesis further.
+  I accept that.
+- Generic trunks are routed automatically to `olivo` or `palmera canaria`, because of the
+  abundance of trunk photos in their folders and/or the removal of others from the `altro`
+  category. My first diagnosis pointed at the presence of sky in some trunk shots, but 3 of the
+  7 generic trunk photos the model predicted as palmera canaria have no sky; and 4 times the
+  trunk + sky combination pointed to `olivo`, which has no photos with sky at all. I'm fairly
+  confident that hypothesis is wrong, but I have to decide how to act (remove some trunks from
+  the olivo and palmera canaria categories, put more back into `altro`, or both?).
+- `palmera cola de pescado` isn't recognised as a whole plant. Its trunks are too thin and get
+  confused with the surrounding environment — it will certainly have formed a texture together
+  with the background that resembles the `altro` category much more, that category being far
+  more varied. Close-ups of the leaves seem to work better.
+
+### [06/08/2026]
+
+I decided that `palmera cola de pescado ramificada` would not be present in the online version.
+The reason is not wanting to complicate the user's experience of the game.
+
+So I'll retrain the model with 6 categories instead of 7, changing nothing else — simply not
+taking the palmera cola de pescado ramificada category into account.
+
+I'll retest it above all on generic trunks. If the trunk problem disappears and no new important
+ones emerge, I'll conclude my improvements here. Otherwise I'll judge, based on the new data and
+the time left, whether it's worth modifying the dataset again.
+
+### [06/08/2026]
+
+I need to take photos that I'll use once I've left Tenerife, to run more accurate tests on my
+intuitions — above all the one about the sky in the drago photos.
+
+### [06/08/2026]
+
+I tested the v3 model. Training without the `palmera cola de pescado ramificada` category, I
+noticed two things:
+
+1. Photos of generic trunks ended up as NOT A MATCH, no longer as olivo or palmera canaria.
+2. Palmera canaria was recognised just 1 time out of 26 (all the rest went to NOT A MATCH),
+   shooting the same kind of photos under the same conditions as with v2.
+
+For this reason I decided to stop improving further, for now: I think the problem is spreading
+too far. I may investigate it in future.
+
+For the online version I'll go back to v2 with 7 categories, and add a button that lets the
+player mark the palmera cola de pescado as found if it isn't recognised. The reason, again, is
+to make the game more enjoyable and avoid making it stressful.
+
+Thank you for your attention.
+
+---
+---
+
+# 🇮🇹 Versione originale in italiano
+
 # Diario delle decisioni
 
 > **A cosa serve questo file.** Qui scrivo, in prosa e con parole mie, le scelte di fondo del
