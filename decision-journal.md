@@ -633,10 +633,3 @@ Per la versione online tornerò alla v2 con 7 categorie, inserirò un pulsante p
 La motivazione è sempre per rendere l'esperienza di gioco più divertente, evitando di renderla stressante.
 
 Ti ringrazio per l'attenzione
-
----
-
-## vocabolario:
-
-- Oggetti: elementi artificiali, umani, animali.
-- Naturale: in circostanza di piante, alberi o fiori.
