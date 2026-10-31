@@ -1,5 +1,7 @@
 # garcia-sanabria-plant-classifier
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21949950.svg)](https://doi.org/10.5281/zenodo.21949950)
+
 Image classifier that recognizes 6 plant species from **Parque García Sanabria**
 (Santa Cruz de Tenerife), plus an "other" class for plants and objects outside the collection.
 
@@ -14,6 +16,8 @@ deployed online as an interactive game.
 > because the process of diagnosis and correction is part of the work.
 
 **Playable demo:** https://planthuntsanabria.netlify.app/
+
+**Datasets and models (Zenodo):** https://doi.org/10.5281/zenodo.21949950
 
 ---
 
@@ -171,11 +175,27 @@ guided rather than left to guess.
   including the raw results of the field tests.
 - `README.md` — this file.
 
-**Not** included in the repository (data and models should not be versioned on GitHub):
+**Not** included in the repository (data and models should not be versioned on GitHub),
+but **publicly available on Zenodo**:
 
-- The dataset images (v1, v2, v3) → stored separately; all versions are kept
-  for reproducibility.
-- The trained models (`.pkl` / `.onnx`) → stored separately.
+- The dataset images (v1, v2, v3) → all versions are published for reproducibility.
+- The trained models (`.pkl` / `.onnx`).
+
+See [Data and models](#data-and-models) below.
+
+---
+
+## Data and models
+
+The versioned image datasets and the trained transfer-learning models are archived on
+Zenodo with a permanent DOI:
+
+> Spagnulo, D. (2026). *García Sanabria Plant Classifier: versioned image datasets and
+> transfer-learning models* [Data set]. Zenodo. https://doi.org/10.5281/zenodo.21949950
+
+Publishing all three dataset versions makes it possible for anyone to rerun the
+experiments described here, including the still-open verification of the "sky → drago"
+hypothesis (see [Known limitations](#known-limitations)).
 
 ---
 
@@ -196,7 +216,7 @@ An educational project with a small dataset; the results should be read honestly
 - **Changes not isolated:** the v2 corrections were all introduced at once, so the
   "sky → drago" hypothesis remains plausible but unproven. A more rigorous future cycle
   would change one variable at a time, replacing only the `drago` class in v1 with the one
-  from v2. All datasets are kept precisely to make this verification possible.
+  from v2. All datasets are published on Zenodo precisely to make this verification possible.
 
 ---
 
@@ -226,4 +246,23 @@ entirely my own work.
 ## License
 
 Code released under the **MIT** license (see [`LICENSE`](LICENSE)).
-Dataset images, when published, will have their own license stated on their page.
+The datasets and trained models are distributed under the license stated on their
+[Zenodo record](https://doi.org/10.5281/zenodo.21949950).
+
+---
+
+## How to cite
+
+If you use the datasets or models, please cite the Zenodo record:
+
+```bibtex
+@dataset{spagnulo_2026_garcia_sanabria,
+  author    = {Spagnulo, Donato},
+  title     = {García Sanabria Plant Classifier: versioned image datasets and
+               transfer-learning models},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.21949950},
+  url       = {https://doi.org/10.5281/zenodo.21949950}
+}
+```
