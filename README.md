@@ -1,232 +1,229 @@
 # garcia-sanabria-plant-classifier
 
-Classificatore di immagini che riconosce 6 specie di piante del **Parque García Sanabria**
-(Santa Cruz de Tenerife), più una classe "altro" per le piante e gli elementi fuori collezione.
+Image classifier that recognizes 6 plant species from **Parque García Sanabria**
+(Santa Cruz de Tenerife), plus an "other" class for plants and objects outside the collection.
 
-Progetto didattico realizzato come prima esperienza pratica di deep learning applicato,
-seguendo l'approccio del corso [fast.ai](https://course.fast.ai/) (Practical Deep Learning
-for Coders). Costruito con [fastai](https://docs.fast.ai/) tramite transfer learning, e
-messo online come gioco interattivo.
+An educational project built as my first hands-on experience with applied deep learning,
+following the approach of the [fast.ai](https://course.fast.ai/) course (Practical Deep Learning
+for Coders). Built with [fastai](https://docs.fast.ai/) using transfer learning, and
+deployed online as an interactive game.
 
-> **Nota:** questo progetto è sviluppato in modo *iterativo*. Ogni versione del modello nasce
-> dall'analisi degli errori della precedente, raccolti **testando sul campo**, non solo
-> leggendo l'error_rate. Qui sotto sono documentate tutte le versioni, non solo quella online —
-> perché il percorso di diagnosi e correzione è parte del lavoro.
+> **Note:** this project is developed *iteratively*. Each model version comes from analyzing
+> the errors of the previous one, gathered by **testing in the field**, not just by reading the
+> error_rate. All versions are documented below, not only the one online —
+> because the process of diagnosis and correction is part of the work.
 
-**Demo giocabile:** https://planthuntsanabria.netlify.app/
+**Playable demo:** https://planthuntsanabria.netlify.app/
 
 ---
 
-## Cosa fa
+## What it does
 
-Data una foto di una pianta, il modello predice a quale delle 7 categorie appartiene:
+Given a photo of a plant, the model predicts which of the 7 categories it belongs to:
 
-| Categoria | Nome scientifico |
-|-----------|------------------|
+| Category | Scientific name |
+|----------|-----------------|
 | Drago | *Dracaena draco* |
 | Mejorana | *Origanum majorana* |
 | Olivo | *Olea europaea* |
 | Palmera canaria | *Phoenix canariensis* |
 | Alcalifa | *Acalypha wilkesiana* |
 | Palmera cola de pescado ramificada | *Caryota* |
-| Altro | (piante ed elementi fuori collezione) |
+| Other | (plants and objects outside the collection) |
 
-### Distribuzione delle immagini per classe
+### Images per class
 
-| Categoria | v1 | v2 | v3 |
-|-----------|----|----|----|
+| Category | v1 | v2 | v3 |
+|----------|----|----|----|
 | Drago | 27 | 29 | 29 |
 | Mejorana | 33 | 33 | 33 |
 | Olivo | 27 | 27 | 27 |
 | Palmera canaria | 30 | 29 | 29 |
 | Alcalifa | 23 | 26 | 26 |
 | Palmera cola de pescado | 27 | 32 | — |
-| Altro | 29 | 30 | 30 |
-| **Totale** | **196** | **206** | **174** |
+| Other | 29 | 30 | 30 |
+| **Total** | **196** | **206** | **174** |
 
-Il ribilanciamento in v2 non è casuale: le classi rinforzate (palmera cola de pescado, alcalifa)
-sono proprio quelle che la diagnosi degli errori aveva individuato come più deboli. La v3 non è
-un dataset nuovo, ma la v2 privata di una classe, per isolarne l'effetto.
-
----
-
-## Metodo (comune a tutte le versioni)
-
-- **Transfer learning** a partire da **ResNet34** pre-allenata.
-- **Data augmentation** (`aug_transforms()`) per compensare il dataset ridotto.
-- Immagini ridimensionate a **224×224**.
-- Divisione train/validation: **80/20** (`valid_pct=0.2`, `seed=42`).
-- Allenamento con `fine_tune`, numero di epoche scelto sperimentalmente.
+The rebalancing in v2 is not random: the reinforced classes (palmera cola de pescado, alcalifa)
+are exactly the ones the error analysis had identified as weakest. v3 is not a new dataset,
+but v2 with one class removed, in order to isolate its effect.
 
 ---
 
-## Versioni del modello
+## Method (shared by all versions)
+
+- **Transfer learning** from a pretrained **ResNet34**.
+- **Data augmentation** (`aug_transforms()`) to compensate for the small dataset.
+- Images resized to **224×224**.
+- Train/validation split: **80/20** (`valid_pct=0.2`, `seed=42`).
+- Training with `fine_tune`, number of epochs chosen experimentally.
+
+---
+
+## Model versions
 
 ### v1 — baseline (03/08/2026)
 
-- **Dataset:** 196 immagini, 7 classi (23–33 foto per classe).
-- **Allenamento:** 8 epoche (scelto iterativamente: 3 → 5 → 8, osservando la `valid_loss`).
-- **Risultato:** error_rate ≈ 0.077 (~92% sul validation set, ~39 foto).
-- **Diagnosi post-test:** testando il modello sul campo sono emersi problemi non visibili
-  nell'error_rate. In particolare il modello tendeva ad "allucinare" la classe `drago` in
-  presenza di **sfondo uniforme (cielo)**, e faticava sui **tronchi** e sulla **palmera cola
-  de pescado**. Il ~92% risultava inoltre gonfiato dalla presenza di scatti quasi-gemelli
-  divisi tra train e validation.
+- **Dataset:** 196 images, 7 classes (23–33 photos per class).
+- **Training:** 8 epochs (chosen iteratively: 3 → 5 → 8, monitoring the `valid_loss`).
+- **Result:** error_rate ≈ 0.077 (~92% on the validation set, ~39 photos).
+- **Post-test diagnosis:** field testing revealed problems not visible in the error_rate.
+  In particular, the model tended to "hallucinate" the `drago` class when the image had a
+  **uniform background (sky)**, and struggled with **trunks** and with the **palmera cola
+  de pescado**. The ~92% was also inflated by near-duplicate shots split between training
+  and validation.
 
-### v2 — correzione basata sulla diagnosi (06/08/2026)
+### v2 — diagnosis-driven correction (06/08/2026)
 
-- **Dataset:** 206 immagini. Modifiche mirate rispetto a v1, tutte derivanti dall'analisi
-  degli errori:
-  - rimosse foto di `drago` e `palmera_canaria` con troppo cielo nello sfondo (ipotesi: il
-    modello associava il cielo alla classe `drago`);
-  - rimossi alcuni scatti quasi-gemelli da varie classi;
-  - aggiunte foto di `drago` senza cielo o con cielo ridotto;
-  - aggiunte foto "d'insieme" alle classi che venivano riconosciute male se inquadrate per intero;
-  - arricchita la classe `altro` (piante biancastre, oggetti) e ribilanciata rimuovendo
-    alcuni tronchi in eccesso.
-- **Allenamento:** 8 epoche.
-- **Risultato:** error_rate ≈ 0.122 (~88% sul validation set, ~41 foto).
-- **È la versione attualmente online.**
+- **Dataset:** 206 images. Targeted changes from v1, all stemming from the error analysis:
+  - removed `drago` and `palmera_canaria` photos with too much sky in the background
+    (hypothesis: the model was associating the sky with the `drago` class);
+  - removed some near-duplicate shots from various classes;
+  - added `drago` photos with no sky or with little sky;
+  - added "full view" photos to the classes that were poorly recognized when framed in full;
+  - enriched the `other` class (whitish plants, objects) and rebalanced it by removing
+    some excess trunks.
+- **Training:** 8 epochs.
+- **Result:** error_rate ≈ 0.122 (~88% on the validation set, ~41 photos).
+- **This is the version currently online.**
 
-> **Perché v2 ha un numero più basso di v1 pur essendo migliore.** Il validation set di v2 è
-> più *pulito* (meno scatti quasi-gemelli) e più *severo* (foto più varie e difficili). Un
-> numero più basso su un test più onesto non indica un modello peggiore: il ~92% di v1 era in
-> parte gonfiato. La verifica reale dei miglioramenti (es. il problema del cielo/drago) si fa
-> testando sul campo, non leggendo l'error_rate.
+> **Why v2 scores lower than v1 despite being better.** The v2 validation set is
+> *cleaner* (fewer near-duplicate shots) and *stricter* (more varied, harder photos). A lower
+> number on a more honest test does not mean a worse model: v1's ~92% was partly inflated.
+> The real check on the improvements (e.g. the sky/drago problem) is done by testing in the
+> field, not by reading the error_rate.
 
-### v3 — esperimento a 6 classi, scartato (06/08/2026)
+### v3 — 6-class experiment, discarded (06/08/2026)
 
-- **Dataset:** 174 immagini — la v2 **senza** la classe `palmera cola de pescado ramificada`.
-- **Motivazione:** quella specie risultava la più problematica nei test sul campo
-  (5 riconoscimenti su 22 tentativi). L'ipotesi era che togliendola si semplificasse il
-  problema e si riducessero le confusioni sulle altre classi.
-- **Risultato:** error_rate ≈ 0.206 (~79% sul validation set, ~35 foto) — il valore più basso
-  delle tre versioni.
-- **Cosa ha risolto:** i **tronchi generici** non venivano più attribuiti a `olivo` o
-  `palmera_canaria`, ma correttamente respinti come "nessuna corrispondenza". È il problema
-  che la v2 non era riuscita a chiudere.
-- **Cosa ha rotto:** la `palmera_canaria` è passata da affidabile a **riconosciuta 1 volta su
-  26**, a parità di condizioni e tipologia di scatto rispetto alla v2.
-- **Decisione:** versione scartata. Il guadagno sui tronchi non compensava una regressione così
-  netta su una delle specie principali.
+- **Dataset:** 174 images — v2 **without** the `palmera cola de pescado ramificada` class.
+- **Motivation:** that species was the most problematic one in field tests
+  (5 correct recognitions out of 22 attempts). The hypothesis was that removing it would
+  simplify the problem and reduce confusion among the other classes.
+- **Result:** error_rate ≈ 0.206 (~79% on the validation set, ~35 photos) — the lowest
+  value of the three versions.
+- **What it fixed:** **generic trunks** were no longer assigned to `olivo` or
+  `palmera_canaria`, but correctly rejected as "no match". This was the problem v2 had
+  failed to solve.
+- **What it broke:** `palmera_canaria` went from reliable to **recognized 1 time out of
+  26**, under the same conditions and with the same type of shots as v2.
+- **Decision:** version discarded. The gain on trunks did not make up for such a sharp
+  regression on one of the main species.
 
-> **Nota metodologica sui confronti.** I tre valori di accuratezza (92% / 88% / 79%) **non sono
-> direttamente confrontabili**: ogni versione ha un dataset diverso e quindi un validation set
-> diverso, per composizione e difficoltà. Servono a seguire l'andamento di ogni singola
-> versione, non a stabilire una classifica tra loro.
-
----
-
-## Test sul campo
-
-L'error_rate da solo si è rivelato insufficiente a descrivere il comportamento reale del
-modello. Per questo ogni versione è stata testata fotografando dal vivo, e i risultati sono
-registrati per intero nel diario.
-
-| Test | Modello | Foto | Cosa ha rivelato |
-|------|---------|------|------------------|
-| Test 1 | v1 | 94 | Il `drago` veniva predetto anche per oggetti (scarpe, chiavi, bottiglie) su superfici uniformi. Incrociando i dati, l'indiziato è risultato il **cielo** presente in circa metà delle foto di training della classe. Tronchi e palmera cola de pescado già problematici. |
-| Test 2 | v2 | 126 | Il problema degli oggetti è **rientrato**: ora finiscono quasi sempre in `altro`. `Drago`, `olivo` e `palmera canaria` vengono riconosciuti dagli **scatti d'insieme**. Restano deboli i tronchi isolati e la palmera cola de pescado (5/22). |
-| Test 3 | v3 | — | Tronchi generici correttamente respinti, ma `palmera canaria` riconosciuta 1 volta su 26. Versione scartata. |
-
-**Totale: 220 fotografie di test**, oltre a quelle di training.
-
-Osservazioni ricorrenti emerse dai test:
-
-- **Gli scatti d'insieme funzionano, i dettagli no.** Fa eccezione la palmera cola de pescado,
-  per cui i primi piani sulle foglie danno risultati migliori dello scatto intero.
-- **I tronchi isolati sono il punto debole generale**, condiviso da più classi.
-- La `mejorana` viene confusa con altre piante piccole e verdi molto simili: comportamento
-  accettato, non è un errore di etichettatura.
-- L'`alcalifa` viene riconosciuta male quando nell'inquadratura sono presenti piante di
-  colorazione diversa dalla sua.
+> **Methodological note on comparisons.** The three accuracy values (92% / 88% / 79%) **are not
+> directly comparable**: each version has a different dataset and therefore a different
+> validation set, in both composition and difficulty. They are useful for tracking each
+> individual version, not for ranking them against each other.
 
 ---
 
-## Demo online
+## Field tests
 
-Il modello è pubblicato non come classificatore nudo, ma come **caccia al tesoro botanica**:
-l'utente fotografa le piante del parco e il modello conferma se ha trovato una delle sei
-specie. Trovandole tutte, si sblocca un'immagine riepilogativa condivisibile.
+The error_rate alone proved insufficient to describe the model's real-world behavior.
+For this reason each version was tested by taking live photos, and the results are
+recorded in full in the decision log.
+
+| Test | Model | Photos | What it revealed |
+|------|-------|--------|------------------|
+| Test 1 | v1 | 94 | `drago` was also predicted for objects (shoes, keys, bottles) on uniform surfaces. Cross-checking the data, the prime suspect turned out to be the **sky**, present in about half of the class's training photos. Trunks and palmera cola de pescado were already problematic. |
+| Test 2 | v2 | 126 | The object problem was **resolved**: objects now almost always end up in `other`. `Drago`, `olivo` and `palmera canaria` are recognized from **full-view shots**. Isolated trunks and the palmera cola de pescado (5/22) remain weak. |
+| Test 3 | v3 | — | Generic trunks correctly rejected, but `palmera canaria` recognized 1 time out of 26. Version discarded. |
+
+**Total: 220 test photographs**, in addition to the training ones.
+
+Recurring observations from the tests:
+
+- **Full-view shots work, close-ups don't.** The exception is the palmera cola de pescado,
+  for which close-ups of the leaves give better results than the full shot.
+- **Isolated trunks are the general weak spot**, shared by several classes.
+- `mejorana` gets confused with other very similar small green plants: accepted behavior,
+  not a labeling error.
+- `alcalifa` is poorly recognized when plants of a different color are present in the frame.
+
+---
+
+## Online demo
+
+The model is published not as a bare classifier, but as a **botanical treasure hunt**:
+the user photographs the plants in the park and the model confirms whether they have found one
+of the six species. Finding all of them unlocks a shareable summary image.
 
 - **Link:** https://planthuntsanabria.netlify.app/
-- **Piattaforma:** Netlify. Il modello gira **interamente nel browser** via **ONNX**
-  (onnxruntime-web): nessun server, nessuna foto caricata o conservata altrove.
-- **Modello impiegato:** v2 (7 categorie).
-- **Pulsante di conferma manuale:** vista la difficoltà documentata sulla palmera cola de
-  pescado, dopo un tentativo fallito l'utente può confermare manualmente di trovarsi davanti a
-  quella pianta. La scelta è deliberata e limitata a quella sola specie: serve a non bloccare
-  il gioco davanti a un limite noto del modello, ed è dichiarata apertamente nel sito.
+- **Platform:** Netlify. The model runs **entirely in the browser** via **ONNX**
+  (onnxruntime-web): no server, no photos uploaded or stored anywhere.
+- **Model used:** v2 (7 categories).
+- **Manual confirmation button:** given the documented difficulty with the palmera cola de
+  pescado, after a failed attempt the user can manually confirm they are standing in front of
+  that plant. This is a deliberate choice limited to that single species: it prevents the game
+  from getting stuck on a known limitation of the model, and it is openly stated on the site.
 
-La pagina dichiara che si tratta di un progetto didattico, riporta i numeri reali (206 foto di
-training, 220 di test, ~88%) e spiega quali inquadrature funzionano meglio, in modo che
-l'utente sia guidato invece che lasciato a indovinare.
-
----
-
-## Struttura del repository
-
-- `notebook.ipynb` — notebook di allenamento (preparazione dati, training, valutazione).
-- `registro_allenamenti.md` — tabella di tutti gli esperimenti, per ogni versione, con letture
-  della matrice di confusione.
-- `diario_decisioni.md` — le scelte metodologiche del progetto e il loro perché (decision log),
-  compresi i risultati grezzi dei test sul campo.
-- `README.md` — questo file.
-
-**Non** incluso nel repository (dati e modelli non vanno versionati su GitHub):
-
-- Le immagini dei dataset (v1, v2, v3) → conservate a parte; tutte le versioni sono mantenute
-  per riproducibilità.
-- I modelli allenati (`.pkl` / `.onnx`) → conservati a parte.
+The page states that it is an educational project, reports the real numbers (206 training
+photos, 220 test photos, ~88%) and explains which shots work best, so that the user is
+guided rather than left to guess.
 
 ---
 
-## Limiti noti
+## Repository structure
 
-Progetto didattico con dataset piccolo; i risultati vanno letti con onestà:
+- `notebook.ipynb` — training notebook (data preparation, training, evaluation).
+- `registro_allenamenti.md` — table of all experiments for each version, with
+  confusion matrix readings.
+- `diario_decisioni.md` — the project's methodological choices and their rationale (decision log),
+  including the raw results of the field tests.
+- `README.md` — this file.
 
-- **Validation set ridotto** (35–41 foto secondo la versione): l'accuratezza è indicativa ma
-  statisticamente rumorosa, e non confrontabile tra versioni diverse.
-- **Poche immagini per classe:** margine di miglioramento raccogliendo più dati, soprattutto
-  per le classi più deboli (palmera cola de pescado in primis).
-- **Sensibilità allo sfondo e alle inquadrature parziali** (tronchi isolati): affrontata in
-  parte in v2, non ancora risolta.
-- **Palmera cola de pescado:** riconosciuta in modo inaffidabile (5/22 sul campo). I fusti
-  sottili si confondono con la vegetazione circostante. Mitigata nel gioco con la conferma
-  manuale, non risolta nel modello.
-- Alcune confusioni sono coerenti con la reale somiglianza visiva delle specie, non con errori
-  di etichettatura.
-- **Modifiche non isolate:** le correzioni di v2 sono state introdotte tutte insieme, quindi
-  l'ipotesi "cielo → drago" resta plausibile ma non dimostrata. Un ciclo futuro più rigoroso
-  cambierebbe una variabile per volta, sostituendo alla v1 la sola classe `drago` della v2.
-  Tutti i dataset sono conservati proprio per rendere possibile questa verifica.
+**Not** included in the repository (data and models should not be versioned on GitHub):
+
+- The dataset images (v1, v2, v3) → stored separately; all versions are kept
+  for reproducibility.
+- The trained models (`.pkl` / `.onnx`) → stored separately.
 
 ---
 
-## Prossimi passi
+## Known limitations
 
-- Verificare in isolamento l'ipotesi dello sfondo uniforme sulla classe `drago`.
-- Raccogliere più foto di tronchi per le classi che ne hanno poche (`drago`, `olivo`) e
-  riequilibrare la classe `altro`, che ne contiene in eccesso.
-- Rivedere la strategia sulla palmera cola de pescado: più scatti d'insieme in contesti
-  diversi, oppure ridefinire il caso d'uso sui soli primi piani fogliari.
-- Sostituire la divisione casuale train/validation con una divisione **per esemplare**, per
-  evitare che scatti quasi-gemelli finiscano da entrambe le parti.
+An educational project with a small dataset; the results should be read honestly:
 
----
-
-## Nota sulla trasparenza
-
-Gli script Python usati per rinominare in blocco i file dei dataset sono stati sviluppati con
-l'assistenza di un tutor AI, così come il sito della demo. Sono stati usati comprendendone lo
-scopo, e per questo motivo gli script non sono inclusi nel repository. La preparazione
-concettuale dei dataset (selezione, verifica delle etichette, criteri di scarto), la
-progettazione ed esecuzione dei test sul campo, la diagnosi degli errori e l'analisi dei
-risultati sono farina del mio sacco.
+- **Small validation set** (35–41 photos depending on the version): accuracy is indicative but
+  statistically noisy, and not comparable across versions.
+- **Few images per class:** room for improvement by collecting more data, especially
+  for the weakest classes (palmera cola de pescado first and foremost).
+- **Sensitivity to background and partial framing** (isolated trunks): partly addressed
+  in v2, not yet solved.
+- **Palmera cola de pescado:** unreliably recognized (5/22 in the field). Its thin stems
+  blend in with the surrounding vegetation. Mitigated in the game with manual confirmation,
+  not solved in the model.
+- Some confusions reflect genuine visual similarity between species, not labeling errors.
+- **Changes not isolated:** the v2 corrections were all introduced at once, so the
+  "sky → drago" hypothesis remains plausible but unproven. A more rigorous future cycle
+  would change one variable at a time, replacing only the `drago` class in v1 with the one
+  from v2. All datasets are kept precisely to make this verification possible.
 
 ---
 
-## Licenza
+## Next steps
 
-Codice rilasciato sotto licenza **MIT** (vedi [`LICENSE`](LICENSE)).
-Le immagini dei dataset, quando pubblicate, avranno una licenza propria indicata nella loro pagina.
+- Verify in isolation the uniform-background hypothesis for the `drago` class.
+- Collect more trunk photos for the classes that have few (`drago`, `olivo`) and
+  rebalance the `other` class, which has too many.
+- Rethink the strategy for the palmera cola de pescado: more full-view shots in different
+  settings, or redefine the use case to leaf close-ups only.
+- Replace the random train/validation split with a **per-specimen** split, to prevent
+  near-duplicate shots from ending up on both sides.
+
+---
+
+## A note on transparency
+
+The Python scripts used to batch-rename the dataset files were developed with the help of
+an AI tutor, as was the demo website. They were used with a full understanding of their
+purpose, and for this reason the scripts are not included in the repository. The conceptual
+preparation of the datasets (selection, label verification, discard criteria), the design
+and execution of the field tests, the error diagnosis and the analysis of the results are
+entirely my own work.
+
+---
+
+## License
+
+Code released under the **MIT** license (see [`LICENSE`](LICENSE)).
+Dataset images, when published, will have their own license stated on their page.
