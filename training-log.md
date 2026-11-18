@@ -6,7 +6,6 @@
 > The point is to make each experiment *repeatable* and *comparable*: without these notes,
 > when one training run goes better than another I won't be able to say why, and I won't be
 > able to reproduce it.
-> Rule: I fill it in IMMEDIATELY after each run, not "later". Better spartan but always current.
 
 ---
 
@@ -14,7 +13,7 @@
 
 - **Conditions (input):** the choices I made, which determine the result.
 - **Results (output):** the numbers the model gives back.
-- **Note / conclusion:** the most important column — why I ran this experiment and what I conclude.
+- **Note / conclusion:** why I ran this experiment and what I conclude.
 
 ---
 
@@ -146,7 +145,6 @@ I'll do is simply test the model in the field and analyse the data I collect.
 - **Seed:** the fixed number that makes the train/validation split repeatable.
 - **valid_pct:** the fraction held back for validation (e.g. 0.2).
 - **error_rate / train_loss / valid_loss:** the values from the LAST epoch.
-- **Note:** the reason for the run and the conclusion. Without this, the row says nothing.
 
 ---
 ---
@@ -158,7 +156,6 @@ I'll do is simply test the model in the field and analyse the data I collect.
 > **A cosa serve questo file.** Ogni volta che alleno il modello, aggiungo una riga.
 > Serve a rendere ogni esperimento *ripetibile* e *confrontabile*: senza queste note,
 > quando un allenamento va meglio di un altro non saprò dire perché, e non potrò rifarlo.
-> Regola: lo compilo SUBITO dopo ogni allenamento, non "dopo". Meglio spartano ma sempre aggiornato.
 
 ---
 
@@ -166,7 +163,7 @@ I'll do is simply test the model in the field and analyse the data I collect.
 
 - **Condizioni (input):** le scelte che ho fatto io e che determinano il risultato.
 - **Risultati (output):** i numeri che il modello mi restituisce.
-- **Nota / conclusione:** la colonna più importante — perché ho fatto questa prova e cosa ne concludo.
+- **Nota / conclusione:** perché ho fatto questa prova e cosa ne concludo.
 
 ---
 
@@ -271,4 +268,3 @@ Il validation set è di circa 39 foto, quindi error_rate finale (0.076 circa 3 f
 - **Seed:** il numero fissato per rendere ripetibile la divisione train/validation.
 - **valid_pct:** percentuale tenuta da parte per la validazione (es. 0.2).
 - **error_rate / train_loss / valid_loss:** i valori dell'ULTIMA epoca.
-- **Nota:** la ragione della prova e la conclusione. Senza questa, la riga è muta.
