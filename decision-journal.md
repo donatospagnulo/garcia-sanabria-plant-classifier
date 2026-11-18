@@ -5,7 +5,6 @@
 > **What this file is for.** Here I write down, in prose and in my own words, the underlying
 > choices of the project and *why* I made them. Unlike the training log (a table of numbers),
 > this one is discursive.
-> Rule: I write a decision WHEN I take it, not after the fact.
 
 ---
 
@@ -16,8 +15,6 @@ Every entry answers three questions:
 1. **What** I decided.
 2. **Why** — the reasoning, and the alternatives I rejected.
 3. (where relevant) **With what consequences** / what I expect to happen.
-
-I date each entry so I can reconstruct the chronology of my own thinking.
 
 ---
 
@@ -355,7 +352,6 @@ Thank you for your attention.
 > **A cosa serve questo file.** Qui scrivo, in prosa e con parole mie, le scelte di fondo del
 > progetto e il *perché*. A differenza del registro allenamenti (una tabella di numeri), questo è
 > discorsivo.
-> Regola: scrivo la decisione QUANDO la prendo, non a posteriori.
 
 ---
 
@@ -365,8 +361,6 @@ Ogni voce risponde a tre domande:
 1. **Cosa** ho deciso.
 2. **Perché** — il ragionamento, le alternative che ho scartato.
 3. (se rilevante) **Con quali conseguenze** / cosa mi aspetto.
-
-Metto la data così ricostruisco la cronologia del pensiero.
 
 ---
 
