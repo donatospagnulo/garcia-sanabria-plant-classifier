@@ -4,8 +4,7 @@
 
 > **What this file is for.** Here I write down, in prose and in my own words, the underlying
 > choices of the project and *why* I made them. Unlike the training log (a table of numbers),
-> this one is discursive. Every entry I write here would become a paragraph of the methodology
-> chapter in a thesis.
+> this one is discursive.
 > Rule: I write a decision WHEN I take it, not after the fact.
 
 ---
@@ -355,7 +354,7 @@ Thank you for your attention.
 
 > **A cosa serve questo file.** Qui scrivo, in prosa e con parole mie, le scelte di fondo del
 > progetto e il *perché*. A differenza del registro allenamenti (una tabella di numeri), questo è
-> discorsivo. Ogni voce che scrivo qui, in una tesi, diventa un paragrafo del capitolo metodologico.
+> discorsivo.
 > Regola: scrivo la decisione QUANDO la prendo, non a posteriori.
 
 ---
